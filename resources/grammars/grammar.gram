@@ -1,0 +1,30 @@
+#JSGF V1.0;
+
+/**
+ * Ashutosh Pandey
+ * Enhanced JSGF Grammar for Speech Recognition
+ */
+
+grammar EnhancedGrammar;
+
+public <greetings> = (you said | great | may i know your name please | hello | hi | how are you | what's up | yes | you | said | can);
+public <voiceChange> = (change voice to one | switch to voice two | select voice three);
+public <amazing> = (say amazing | tell me something amazing | what day is it today);
+public <queries> = (who's your daddy | obey me | what's the weather like);
+public <numbers> = (zero | one | two | three | four | five | six | seven | eight | nine | ten
+                  | eleven | twelve | thirteen | fourteen | fifteen | sixteen | seventeen | eighteen | nineteen | twenty
+                  | thirty | forty | fifty | sixty | seventy | eighty | ninety
+                  | hundred | thousand | million | billion);
+public <mathOperators> = (plus | minus | multiplied by | divided by);
+public <daysOfWeek> = (Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday);
+public <months> = (January | February | March | April | May | June | July | August | September | October | November | December);
+public <colors> = (red | green | blue | yellow | purple | orange | pink | brown);
+public <animals> = (dog | cat | bird | fish | lion | tiger | elephant | monkey | panda);
+
+public <mathExpression> = <numbers>{1} <mathOperators>{1} <numbers>{1};
+public <dateQuery> = (what day is it | what's the date | tell me today's date);
+public <colorQuery> = (what color is it | tell me the color | identify the color);
+public <animalQuery> = (what animal is this | tell me the animal | identify the animal);
+
+public <command> = <greetings> | <voiceChange> | <amazing> | <queries> | <mathExpression> | <dateQuery> | <colorQuery> | <animalQuery>;
+
