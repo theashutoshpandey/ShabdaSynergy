@@ -20,4 +20,9 @@ public class CollectResult {
     public void addRecognitionResult(RecognitionResult recognitionResult) {
         this.results.add(recognitionResult);
     }
+
+    public void clear() {
+        this.text = "";
+        results.clear();
+    }
 }

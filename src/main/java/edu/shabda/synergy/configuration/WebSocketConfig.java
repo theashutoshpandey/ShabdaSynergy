@@ -12,6 +12,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SynergyMediaStreamsHandler(), "/sync").setAllowedOrigins("*");
+        registry.addHandler(new SynergyMediaStreamsHandler(), "/teststream").setAllowedOrigins("*");
     }
 }
