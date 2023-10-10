@@ -1,4 +1,4 @@
-# ShabdaSynergy - Offline Speech-to-Text with Real-time Audio Streaming and Java Backend API Support (Working)
+# ShabdaSynergy - Offline Speech-to-Text with Real-time Audio Streaming and Java Backend API Support.
 
 ## Overview
 ShabdaSynergy is an innovative speech-to-text solution that empowers your applications with offline speech recognition capabilities. It offers a comprehensive set of features, including Automatic Speech Recognition (ASR), grammar-based speech recognition, language model-based speech recognition, real-time audio streaming through WebSocket, and seamless API integration for Java backend systems.
@@ -26,9 +26,59 @@ Integrating ShabdaSynergy into your Java backend is a breeze, thanks to its robu
 ## Use Cases
 - Educational platforms for transcribing lectures and discussions.
 - Voice-controlled applications and devices.
-- Customer service chatbots with voice input.
+- Customer service basic chatbots with voice input.
 - Accessibility tools for the hearing-impaired.
 - Podcast and content transcription services.
 - And much more!
 
-ShabdaSynergy is the go-to choice for businesses and developers seeking a versatile and accurate offline speech-to-text solution with real-time streaming and easy integration into Java backend systems.
+## Transcribe Voice File to Text API Documentation
+
+### Endpoint
+
+`POST http://127.0.0.1:5070/voice`
+
+### Description
+
+This API endpoint allows you to transcribe voice data to text. You can specify parameters such as `sampleRate`, `useGrammar`, and `languageCode`.
+
+### Request Parameters
+
+- `sampleRate` (integer, optional): The sample rate of the voice data. Default is 8000.
+- `useGrammar` (boolean, optional): Whether to use grammar rules during transcription. Default is true.
+- `languageCode` (string, optional): The language code for the voice data. Default is "en-US".
+
+### Request Body
+
+- `file` (file, required): The voice data file to be transcribed supported (.mp3 amd .wav).
+
+### Example Request
+
+```shell
+curl --location 'http://127.0.0.1:5004/voice?sampleRate=8000&useGrammar=true&languageCode=en-US' \
+--form 'file=@"/C:/Users/Ashutosh/VoiceSpacePool/2aef8300b3bb543c1190ba50b6b7d4d1.wav"'
+```
+### Result Response
+
+```json
+{
+    "text": "great may i know your name please ",
+    "results": [
+        {
+            "transcript": "great",
+            "confidence": 0.0,
+            "startTimeMs": 260,
+            "endTimeMs": 640
+        },
+        {
+            "transcript": "may i know your name please",
+            "confidence": 0.0,
+            "startTimeMs": 880,
+            "endTimeMs": 2120
+        }
+    ]
+}
+```
+
+ShabdaSynergy is the go-to choice for businesses and developers seeking a versatile and almost accurate offline speech-to-text solution with real-time streaming and easy integration into Java backend systems.
+
+

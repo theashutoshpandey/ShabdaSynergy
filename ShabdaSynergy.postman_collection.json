@@ -1,0 +1,56 @@
+{
+	"info": {
+		"_postman_id": "b408fe8d-cde0-468a-9fed-2cea96be1145",
+		"name": "ShabdaSynergy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18517527"
+	},
+	"item": [
+		{
+			"name": "TranscriptFile",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Ashutosh/VoiceSpacePool/2aef8300b3bb543c1190ba50b6b7d4d1.wav"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5070/voice?sampleRate=8000&useGrammar=true&languageCode=en-US",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5004",
+					"path": [
+						"voice"
+					],
+					"query": [
+						{
+							"key": "sampleRate",
+							"value": "8000"
+						},
+						{
+							"key": "useGrammar",
+							"value": "true"
+						},
+						{
+							"key": "languageCode",
+							"value": "en-US"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

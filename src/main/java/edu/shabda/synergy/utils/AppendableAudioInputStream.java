@@ -13,7 +13,6 @@ public class AppendableAudioInputStream extends InputStream {
 
     public void appendData(byte[] data, int offset, int length) throws IOException {
         byte[] chunk = new byte[length];
-//        System.out.println(length);
         System.arraycopy(data, offset, chunk, 0, length);
         synchronized (dataChunks) {
             dataChunks.add(chunk);
@@ -42,7 +41,6 @@ public class AppendableAudioInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-//        System.out.println(len);
         int totalBytesRead = 0;
         while (totalBytesRead < len) {
             int bytesRead = read();
