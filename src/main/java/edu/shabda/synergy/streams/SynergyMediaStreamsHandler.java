@@ -1,8 +1,5 @@
 package edu.shabda.synergy.streams;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,19 +43,6 @@ public class SynergyMediaStreamsHandler extends AbstractWebSocketHandler {
         System.out.println("Connection disconnected successfully Reason : " + closeStatus.getReason());
     }
 
-    /**
-     * Helper method to append write result messages to the log file
-     */
-    private void resultAppender(String result) {
-        try (BufferedWriter writer = new BufferedWriter(
-                new FileWriter("D:\\transcript.json", true))) {
-            writer.write(result + "\n");
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private Configuration createConfiguration(int sampleRate, boolean useGrammar, String languageCode) {
         Configuration config = new Configuration();
         config.setAcousticModelPath("resources/en-us/en-us");
@@ -71,22 +55,5 @@ public class SynergyMediaStreamsHandler extends AbstractWebSocketHandler {
         config.setUseGrammar(useGrammar);
         return config;
     }
-
-    // try {
-    // byte[] audioChunk = message.getPayload().array();
-    // ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-    // if(arrayOutputStream.toByteArray().length >= 32000) {
-    // CollectResult collectResult = LiveSpeechRecognizer.recognizeSpeech(new
-    // ByteArrayInputStream(arrayOutputStream.toByteArray()));
-    // resultAppender(new Gson().toJson(collectResult));
-    // session.sendMessage(new TextMessage(new Gson().toJson(collectResult)));
-    // arrayOutputStream = new ByteArrayOutputStream();
-    // arrayOutputStream.write(audioChunk);
-    // }else{
-    // arrayOutputStream.write(Base64.getDecoder().decode(audioChunk));
-    // }
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
 
 }

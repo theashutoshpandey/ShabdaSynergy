@@ -9,50 +9,80 @@ import edu.shabda.synergy.modal.RecognitionResult;
 import edu.shabda.synergy.utils.AppendableAudioInputStream;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * A class for live speech recognition using WebSocket and the
+ * StreamSpeechRecognizer.
+ *
+ * @Ashutosh Pandey
+ */
 public class LiveSpeechRecognizer {
-    private static final Logger logger = LoggerFactory.getLogger(LiveSpeechRecognizer.class);
 
     private final WebSocketSession session;
     private final Configuration configuration;
     private final StreamSpeechRecognizer recognizer;
-    private final AppendableAudioInputStream inputStream;
     private final ExecutorService recognitionExecutor;
 
+    private AppendableAudioInputStream inputStream;
+    private ByteArrayOutputStream arrayOutputStream;
+
+    /**
+     * Initializes the LiveSpeechRecognizer with the provided WebSocketSession and
+     * Configuration.
+     */
     public LiveSpeechRecognizer(WebSocketSession session, Configuration configuration) throws IOException {
         this.session = session;
         this.configuration = configuration;
         this.recognizer = new StreamSpeechRecognizer(configuration);
         this.inputStream = configuration.getUseGrammar() ? null : new AppendableAudioInputStream();
+        this.arrayOutputStream = configuration.getUseGrammar() ? new ByteArrayOutputStream() : null;
         this.recognitionExecutor = Executors.newSingleThreadExecutor();
 
         if (!configuration.getUseGrammar()) {
-            this.initializeLiveRecognitionAndPublisher();
+            initializeLiveRecognitionAndPublisher();
         }
     }
 
+    /**
+     * Loads audio data into the recognizer for live recognition.
+     */
     public void loadAudioPayload(byte[] audioData) {
         try {
             if (inputStream != null) {
                 inputStream.appendData(audioData, 0, audioData.length);
+
+            } else if (arrayOutputStream != null && arrayOutputStream.size() >= 32000) {
+                initializeGrammarRecognitionAndPublisher(new ByteArrayInputStream(arrayOutputStream.toByteArray()));
+
+                this.arrayOutputStream = new ByteArrayOutputStream();
+                arrayOutputStream.write(audioData, 0, audioData.length);
+
+            } else if (arrayOutputStream != null) {
+                arrayOutputStream.write(audioData, 0, audioData.length);
+
+            } else {
+                System.out.println("Not found any service to process");
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
+    /**
+     * Initializes live recognition and publishes results asynchronously.
+     */
     public void initializeLiveRecognitionAndPublisher() {
         recognitionExecutor.execute(() -> {
             try {
-                this.recognizer.startRecognition(inputStream);
-                System.out.println("Service for live recognition started successfully");
+                recognizer.startRecognition(inputStream);
+                System.out.println("Live speech recognition service started successfully.");
+
                 CollectResult collectResult = new CollectResult();
 
                 while (session.isOpen()) {
@@ -61,20 +91,25 @@ public class LiveSpeechRecognizer {
                     if (result != null) {
                         processRecognitionResult(collectResult, result);
                     }
-                    System.out.println("Result : " + new Gson().toJson(collectResult));
+
+                    System.out.println("Recognition Result: " + new Gson().toJson(collectResult));
                     collectResult.clear();
-                    Thread.sleep(5000);
+                    Thread.sleep(3200);
                 }
 
-                recognizer.stopRecognition();
-                logger.info("live recognition stopped successfully");
             } catch (Exception e) {
-                logger.error("Error during recognition: " + e.getMessage(), e);
+                System.out.println("Error during recognition: " + e.getMessage());
+            } finally {
+                recognizer.stopRecognition();
+                System.out.println("Live speech recognition service stopped successfully.");
             }
         });
     }
 
-    public CollectResult recognizeSpeech(InputStream audioStream) throws Exception {
+    /**
+     * Recognizes speech from an InputStream.
+     */
+    public void initializeGrammarRecognitionAndPublisher(InputStream audioStream) {
         CollectResult collectResult = new CollectResult();
         try {
             recognizer.startRecognition(audioStream);
@@ -82,25 +117,35 @@ public class LiveSpeechRecognizer {
             while ((result = recognizer.getResult()) != null) {
                 processRecognitionResult(collectResult, result);
             }
+            System.out.println("Recognition Result: " + new Gson().toJson(collectResult));
         } catch (Exception e) {
-            logger.error("Failed to recognize speech: " + e.getMessage(), e);
+            System.err.println("Failed to recognize speech: " + e.getMessage());
         } finally {
             recognizer.stopRecognition();
         }
-        return collectResult;
     }
 
+    // Process the recognition results
     private void processRecognitionResult(CollectResult collectResult, SpeechResult result) {
-        // Process the recognition results
         String transcript = result.getHypothesis();
         collectResult.addText(transcript);
 
-        // double confidence = result.getWords().stream()
-        // .mapToDouble(e -> e.getConfidence())
-        // .max()
-        // .orElse(0.0);
+        double confidence = calculateConfidence(result);
         long startTimeMs = result.getWords().get(0).getTimeFrame().getStart();
         long endTimeMs = result.getWords().get(result.getWords().size() - 1).getTimeFrame().getEnd();
-        collectResult.addRecognitionResult(new RecognitionResult(transcript, 0.0, startTimeMs, endTimeMs));
+
+        collectResult.addRecognitionResult(new RecognitionResult(transcript, confidence, startTimeMs, endTimeMs));
+    }
+
+    // Helper method to calculate confidence
+    private double calculateConfidence(SpeechResult result) {
+        try {
+            return result.getWords().stream()
+                    .mapToDouble(e -> e.getConfidence())
+                    .max()
+                    .orElse(0.0);
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 }
